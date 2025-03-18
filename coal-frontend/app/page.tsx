@@ -10,6 +10,7 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [newCoal, setNewCoal] = useState({ name: "", heat: "", sulfur: "", volatile: "", moisture: "", base_price: "" });
+  const [userPrompt, setUserPrompt] = useState("我需要两个煤种热值为x kcal以上，硫含量低于y%以内，最低成本参配方案。");
 
   const loadCoal = () => {
     axios.get("/api/coal").then((res) => setCoalTypes(res.data.coal_types));
@@ -26,6 +27,7 @@ export default function Home() {
       const response = await axios.post("/api/calculate", {
         railwayFee: Number(railwayFee),
         shortDistanceFee: Number(shortDistanceFee),
+        userPrompt, // ✅ 传给后端
       });
       setResult(response.data);
     } catch (error) {
@@ -77,7 +79,7 @@ export default function Home() {
 
   return (
     <div className="p-10 bg-gray-50 min-h-screen space-y-8">
-      <h1 className="text-3xl font-bold text-center text-gray-800">🚂 煤炭掺配智能计算系统</h1>
+      <h1 className="text-3xl font-bold text-center text-gray-800">🚂 煤炭GPT</h1>
 
       {/* 煤种列表 */}
       <div className="bg-white shadow-lg rounded-xl p-6">
@@ -130,6 +132,17 @@ export default function Home() {
           <div>
             <label className="block mb-1 font-medium">🚛 短倒运费 (元/吨)</label>
             <input className="border rounded-lg p-2 w-full" type="number" placeholder="如：10" value={shortDistanceFee} onChange={(e) => setShortDistanceFee(e.target.value)} />
+          </div>
+          {/* AI 问题提示词 */}
+          <div className="mt-6">
+            <label className="block mb-2 font-medium">💬 AI 问题提示词（可自定义）</label>
+            <textarea
+              className="border rounded-lg p-3 w-full"
+              rows={3}
+              placeholder="请输入你的计算目标或要求"
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+            ></textarea>
           </div>
         </div>
 
